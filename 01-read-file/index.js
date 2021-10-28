@@ -1,7 +1,8 @@
 const fs = require('fs');
+const path = require('path/posix');
 
 const stream = fs.createReadStream(
-  '01-read-file/text.txt',
+  path.join(__dirname, '/text.txt'),
   'utf8'
 );
 stream.on('data', (data) => console.log(data));
