@@ -12,7 +12,7 @@ fs.readdir(testFolder, {
         if (err) {
           console.log('File doesn\'t exist.');
         } else {
-          console.log(`${path.parse(file.name).name} - ${path.parse(file.name).ext.slice(1)} - ${Math.round(stats.size / BYTES_IN_KB)}kb`);
+          console.log(`${path.parse(file.name).name} - ${path.parse(file.name).ext.slice(1)} - ${stats.size / BYTES_IN_KB}kb`);
         }
       });
     }
