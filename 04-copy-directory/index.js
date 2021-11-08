@@ -44,7 +44,13 @@ async function checkOldFiles(targetPath) {
   });
 }
 
-checkOldFiles(resultPath).then(setTimeout(() => {
-  copyDir(sourcePath, resultPath);
-  console.log('New copies created');
-}, 300));
+async function copyDirectory(sourcePath, resultPath) {
+  checkOldFiles(resultPath).then(setTimeout(() => {
+    copyDir(sourcePath, resultPath);
+    console.log('New copies created');
+  }, 300));
+}
+
+copyDirectory(sourcePath, resultPath);
+
+module.exports = copyDirectory;
