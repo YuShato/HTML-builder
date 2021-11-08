@@ -21,7 +21,7 @@ const createBundleCss = (sourceTargetFolder, resultTargetFolder) => {
           let content = fs.createReadStream(path.join(sourceTargetFolder, item.name), 'utf-8');
           content.on('data', (text) => newFile.write(text.trim() + '\n\n'));
         });
-        console.log('Файл bundle.css создан.');
+        console.log('File bundle.css created.');
       })
       .catch(err => console.log(err));
   });

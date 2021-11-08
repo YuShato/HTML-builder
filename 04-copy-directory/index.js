@@ -38,7 +38,7 @@ async function copyDir(src, dest) {
 async function checkOldFiles(targetPath) {
   stat(targetPath, function (err) {
     if (!err) {
-      console.log('Удаляю старые файлы');
+      console.log('Wait a minute. Removing old files...');
       deleteDirectory(resultPath);
     }
   });
@@ -46,5 +46,5 @@ async function checkOldFiles(targetPath) {
 
 checkOldFiles(resultPath).then(setTimeout(() => {
   copyDir(sourcePath, resultPath);
-  console.log('Создана новая папка с копиями');
+  console.log('New copies created');
 }, 300));
