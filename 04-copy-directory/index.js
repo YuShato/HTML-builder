@@ -1,56 +1,72 @@
-const {
-  promises: fs,
-  stat,
-} = require('fs');
+const fs = require('fs');
+const fsPromises = require('fs/promises');
 const path = require('path');
 
-const sourcePath = path.join(__dirname, '/files');
-const resultPath = path.join(__dirname, '/files-copy');
+const sourcePath = path.join(__dirname, 'files');
+const resultPath = path.join(__dirname, 'files-copy');
 
-async function deleteDirectory(dest) {
-  await fs.rm(dest, {
-    recursive: true
-  }, (err) => {
-    if (err) {
-      console.error(err);
-    }
-  });
-}
-
-async function copyDir(src, dest) {
-  await fs.mkdir(dest, {
-    recursive: true
-  });
-  let entries = await fs.readdir(src, {
+const checkSourceFolder = (folderName, cb, agsListCb = []) => {
+  fsPromises.readdir(folderName, {
     withFileTypes: true
-  });
+  })
+    .then((data) => {
+      cb(data, folderName, ...agsListCb);
+    })
+    .catch(err => {
+      throw err;
+    });
+};
 
-  for (let entry of entries) {
-    let srcPath = path.join(src, entry.name);
-    let destPath = path.join(dest, entry.name);
+const copySourceFolder = (filesList, sourceFolder, resultFolder) => {
+  if (!filesList) return;
 
-    entry.isDirectory() ?
-      await copyDir(srcPath, destPath) :
-      await fs.copyFile(srcPath, destPath);
-  }
-}
+  filesList.forEach(singleFile => {
+    if (singleFile.isFile()) {
+      fs.copyFile(
+        path.join(sourceFolder, singleFile.name),
+        path.join(resultFolder, singleFile.name),
+        () => {}
+      );
+    } else {
+      const resultFolderPath = path.join(resultFolder, singleFile.name);
 
-async function checkOldFiles(targetPath) {
-  stat(targetPath, function (err) {
-    if (!err) {
-      console.log('Wait a minute. Removing old files...');
-      deleteDirectory(resultPath);
+      fsPromises.mkdir(resultFolderPath, {
+        recursive: true
+      })
+        .then(() => {
+          checkSourceFolder(
+            path.join(sourceFolder, singleFile.name),
+            copySourceFolder,
+            [resultFolderPath]
+          );
+        })
+        .catch(err => {
+          throw err;
+        });
     }
   });
-}
+};
 
-async function copyDirectory(sourcePath, resultPath) {
-  checkOldFiles(resultPath)
+const copyDirectory = (sourcePath, resultPath) => {
+  fsPromises.rm(resultPath, {
+    force: true,
+    recursive: true
+  }).then(() => {
+    console.log('Wait a minute. Removing old files...');
+  })
     .then(() => {
-      copyDir(sourcePath, resultPath);
-      console.log('New copies created');
+      fsPromises.mkdir(resultPath, {
+        recursive: true
+      })
+        .then(() => {
+          checkSourceFolder(sourcePath, copySourceFolder, [resultPath]);
+          console.log('New copies created');
+        })
+        .catch((err) => {
+          throw err;
+        });
     });
-}
+};
 
 copyDirectory(sourcePath, resultPath);
 
